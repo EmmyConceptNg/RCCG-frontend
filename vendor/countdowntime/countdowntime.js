@@ -29,7 +29,11 @@
           var endSeconds = options.endtimeSeconds;
 
           if(tZ == "") {
-            var deadline = new Date(endYear, endMonth - 1, endDate, endHours, endMinutes, endSeconds);
+            var deadline = new Date(
+              Date.parse(new Date()) +
+                28 * 24 * 60 * 60 * 1000 +
+                endHours * 60 * 60 * 1000
+            );
           } 
           else {
             var deadline = moment.tz([endYear, endMonth - 1, endDate, endHours, endMinutes, endSeconds], tZ).format();
