@@ -3,6 +3,9 @@ import WorkOrder from "../models/WorkOrder.js";
 import axios from "axios";
 import { sendMail } from "./SendMail.js";
 import { Invoice } from "../pages/Invoice.js";
+import dotenv from "dotenv";
+import { logger } from "../utils/logger.js";
+dotenv.config();
 
 // WorkOrder controller
 export const getWorkOrder = async (req, res) => {
@@ -14,6 +17,7 @@ export const getWorkOrder = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 export const getWorkOrderAppfolio = async (req, res) => {
   try {
     const response = await axios.get(
@@ -61,32 +65,30 @@ export const getWorkOrderAppfolio = async (req, res) => {
             return updatedOrder;
           } else {
             console.log(
-              `Work order ${workOrder.WorkOrderId} already exists in the database.`
+              `>>>>>>> Skipping >>>>>>> Work order ${workOrder.WorkOrderId} already exists in the database.`
+            );
+            logger.info(
+              `>>>>>>> Skipping >>>>>>> Work order ${workOrder.WorkOrderId} already exists in the database.`
             );
             return null;
           }
         })
     );
 
-    res.status(200).json(processedOrders.filter((order) => order !== null));
+    // res.status(200).json(processedOrders.filter((order) => order !== null));
+    console.log(processedOrders.filter((order) => order !== null));
   } catch (error) {
     console.error("Failed to get or create work orders:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while processing your request." });
+    logger.error("Failed to get or create work orders:", error);
+    // res
+    //   .status(500)
+    //   .json({ error: "An error occurred while processing your request." });
+    console.log({ error: "An error occurred while processing your request." });
+    logger.error({ error: "An error occurred while processing your request." });
   }
 };
 
-export const createWorkOrder = async (req, res) => {
-  // Handle POST request to create WorkOrder
-  try {
-    const newItem = new WorkOrder(req.body);
-    const savedItem = await newItem.save();
-    res.status(201).json(savedItem);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
+
 
 export const getHCPClients = async (req, res) => {
   const options = {
@@ -103,6 +105,7 @@ export const getHCPClients = async (req, res) => {
     console.log(data);
   } catch (error) {
     console.error(error);
+    logger.error(error);
   }
 };
 export const getHCPJobs = async (req, res) => {
@@ -120,13 +123,14 @@ export const getHCPJobs = async (req, res) => {
     console.log(data);
   } catch (error) {
     console.error(error);
+    logger.error(error);
   }
 };
 
 export const createHCPJobs = async (workOrder, client) => {
 
-  console.log('client', client)
-  console.log('work order', workOrder)
+  // console.log('client', client)
+  // console.log('work order', workOrder)
   try {
     const { data } = await axios.post(
       "https://api.housecallpro.com/jobs",
@@ -170,6 +174,7 @@ export const createHCPJobs = async (workOrder, client) => {
     return data;
   } catch (error) {
     console.error(error);
+    logger.error(error);
   }
 };
 
@@ -177,7 +182,7 @@ const createCustomer = async (workOrder) => {
   let tenantFirstName = "";
   let tenantLastName = "";
 
-  console.log(workOrder)
+  // console.log(workOrder)
 
   if (workOrder.PrimaryTenant) {
     const [firstName, lastName] = workOrder.PrimaryTenant.split(" ").map(
@@ -188,7 +193,7 @@ const createCustomer = async (workOrder) => {
     tenantLastName = lastName;
   }
 
-  console.log('first_name', tenantFirstName);
+  // console.log('first_name', tenantFirstName);
 
   try {
     const existingClient = await Clients.findOne({
@@ -202,6 +207,7 @@ const createCustomer = async (workOrder) => {
       console.log(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`)
       console.log(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`)
       console.log(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`)
+      logger.info(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`)
 
       const createCustomerResponse = await axios.post(
         "https://api.housecallpro.com/customers",
@@ -235,6 +241,7 @@ const createCustomer = async (workOrder) => {
       );
 
       console.log('created customer', createCustomerResponse.data);
+      logger.info('created customer');
 
       
 
@@ -248,6 +255,7 @@ const createCustomer = async (workOrder) => {
     }
   } catch (error) {
     console.error(error);
+    logger.error(error);
   }
 };
 
@@ -265,3 +273,5 @@ function removeCircularReferences(obj) {
   }
   return JSON.parse(JSON.stringify(obj, replacer));
 }
+
+getWorkOrderAppfolio();
