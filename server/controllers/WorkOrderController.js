@@ -6,6 +6,7 @@ import { Invoice } from "../pages/Invoice.js";
 import dotenv from "dotenv";
 import { logger } from "../utils/logger.js";
 dotenv.config();
+import mongoose from 'mongoose'
 
 // WorkOrder controller
 export const getWorkOrder = async (req, res) => {
@@ -19,9 +20,6 @@ export const getWorkOrder = async (req, res) => {
 };
 
 export const getWorkOrderAppfolio = async (req, res) => {
-
-
-
   // connect ot mongoose for the sake of node Cron
 
   const PORT = process.env.PORT || 9090;
@@ -36,7 +34,7 @@ export const getWorkOrderAppfolio = async (req, res) => {
     })
     .catch((error) => console.log(`${error} did not connect`));
 
-
+  // connect ot mongoose for the sake of node Cron
 
   try {
     const response = await axios.get(
