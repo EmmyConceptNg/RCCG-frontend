@@ -22,15 +22,15 @@ export const getWorkOrder = async (req, res) => {
 export const getWorkOrderAppfolio = async (req, res) => {
   // connect ot mongoose for the sake of node Cron
 
-  const PORT = process.env.PORT || 9090;
+  
   mongoose
     .connect(process.env.MONGO_URL, {})
     .then(() => {
-      console.log(`====== Server is running on ${PORT} ============`);
+      console.log(`====== Connected to MongoDB ============`);
     })
     .catch((error) => console.log(`${error} did not connect`));
 
-  // connect ot mongoose for the sake of node Cron
+  // connect ot mongoose for the sake of node Cron because cron is not http request
 
   try {
     const response = await axios.get(
