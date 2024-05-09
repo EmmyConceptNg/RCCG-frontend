@@ -90,6 +90,7 @@ export const getWorkOrderAppfolio = async (req, res) => {
 
     // res.status(200).json(processedOrders.filter((order) => order !== null));
     console.log(processedOrders.filter((order) => order !== null));
+    return processedOrders.filter((order) => order !== null);
   } catch (error) {
     console.error("Failed to get or create work orders:", error);
     logger.error("Failed to get or create work orders:", error);

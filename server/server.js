@@ -18,9 +18,9 @@ app.use(bodyParser.json());
 
 /* ROUTES */
 app.use('/api/workorders', workorderRoutes)
-app.get('/', function (req, res){
-  console.log(' Welcome to RCCG server >>>>>>>>>>> To the Moon >>>>>>>>')
-})
+// app.get('/', function (req, res){
+//   console.log(' Welcome to RCCG server >>>>>>>>>>> To the Moon >>>>>>>>')
+// })
 
 /* MONGOOSE SETUP */
 const PORT = process.env.PORT || 9090;
