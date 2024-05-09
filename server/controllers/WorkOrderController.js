@@ -19,6 +19,25 @@ export const getWorkOrder = async (req, res) => {
 };
 
 export const getWorkOrderAppfolio = async (req, res) => {
+
+
+
+  // connect ot mongoose for the sake of node Cron
+
+  const PORT = process.env.PORT || 9090;
+  mongoose
+    .connect(process.env.MONGO_URL, {})
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log("================================================");
+        console.log(`====== Server is running on ${PORT} ============`);
+        console.log("================================================");
+      });
+    })
+    .catch((error) => console.log(`${error} did not connect`));
+
+
+
   try {
     const response = await axios.get(
       `https://${process.env.clientID}:${process.env.clientSecret}@longforddc.appfolio.com/api/v1/reports/work_order.json`
