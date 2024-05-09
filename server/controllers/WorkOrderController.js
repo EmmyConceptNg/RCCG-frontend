@@ -26,11 +26,7 @@ export const getWorkOrderAppfolio = async (req, res) => {
   mongoose
     .connect(process.env.MONGO_URL, {})
     .then(() => {
-      app.listen(PORT, () => {
-        console.log("================================================");
-        console.log(`====== Server is running on ${PORT} ============`);
-        console.log("================================================");
-      });
+      console.log(`====== Server is running on ${PORT} ============`);
     })
     .catch((error) => console.log(`${error} did not connect`));
 
