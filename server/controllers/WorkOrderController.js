@@ -6,7 +6,7 @@ import { Invoice } from "../pages/Invoice.js";
 import dotenv from "dotenv";
 import { logger } from "../utils/logger.js";
 dotenv.config();
-import mongoose from 'mongoose'
+
 
 // WorkOrder controller
 export const getWorkOrder = async (req, res) => {
@@ -20,18 +20,6 @@ export const getWorkOrder = async (req, res) => {
 };
 
 export const getWorkOrderAppfolio = async (req, res) => {
-  // connect ot mongoose for the sake of node Cron
-
-  
-  mongoose
-    .connect(process.env.MONGO_URL, {})
-    .then(() => {
-      console.log(`====== Connected to MongoDB ============`);
-    })
-    .catch((error) => console.log(`${error} did not connect`));
-
-  // connect ot mongoose for the sake of node Cron because cron is not http request
-
   try {
     const response = await axios.get(
       `https://${process.env.clientID}:${process.env.clientSecret}@longforddc.appfolio.com/api/v1/reports/work_order.json`
@@ -88,9 +76,9 @@ export const getWorkOrderAppfolio = async (req, res) => {
         })
     );
 
-    // res.status(200).json(processedOrders.filter((order) => order !== null));
     console.log(processedOrders.filter((order) => order !== null));
-    return processedOrders.filter((order) => order !== null);
+    res.status(200).json(processedOrders.filter((order) => order !== null));
+    // return processedOrders.filter((order) => order !== null);
   } catch (error) {
     console.error("Failed to get or create work orders:", error);
     logger.error("Failed to get or create work orders:", error);

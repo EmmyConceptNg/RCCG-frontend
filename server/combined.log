@@ -7,3 +7,17 @@
 {"level":"info","message":"Info message"}
 {"level":"error","message":"Error message"}
 {"level":"info","message":">>>>>>> Skipping >>>>>>> Work order 25450 already exists in the database."}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}
+{"level":"info","message":">>>>>>> Skipping >>>>>>> Work order 25472 already exists in the database."}
+{"level":"info","message":">>>>>>> Skipping >>>>>>> Work order 25450 already exists in the database."}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}
+{"level":"info","message":">>>>>>> Skipping >>>>>>> Work order 25472 already exists in the database."}
+{"level":"info","message":">>>>>>> Skipping >>>>>>> Work order 25450 already exists in the database."}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}
+{"level":"info","message":">>>>>>> Skipping >>>>>>> Work order 25472 already exists in the database."}
+{"level":"info","message":">>>>>>> Skipping >>>>>>> Work order 25450 already exists in the database."}
+{"level":"error","message":"Failed to get or create work orders: Cannot read properties of undefined (reading 'status')","stack":"TypeError: Cannot read properties of undefined (reading 'status')\n    at getWorkOrderAppfolio (file:///Users/emmy/projects/bles/RockCreek/server/controllers/WorkOrderController.js:80:9)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"}
+{"level":"error","message":{"error":"An error occurred while processing your request."}}
