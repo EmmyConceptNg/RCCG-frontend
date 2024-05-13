@@ -7,7 +7,6 @@ import dotenv from "dotenv";
 import { logger } from "../utils/logger.js";
 dotenv.config();
 
-
 // WorkOrder controller
 export const getWorkOrder = async (req, res) => {
   // Handle GET request for WorkOrder
@@ -45,8 +44,23 @@ export const getWorkOrderAppfolio = async (req, res) => {
           });
 
           if (!existingOrder) {
-            const createdClient = await createCustomer(workOrder);
-            const createdJob = await createHCPJobs(workOrder, createdClient);
+            const getClient = await getHCPClients();
+
+            
+
+           const longFord = getClient.customers.find(
+             (client) =>
+               client.first_name === "Longford" &&
+               client.last_name === "Management"
+           );
+
+          //  return res.status(200).json(longFord);
+
+           const cleanedLongFord = removeCircularReferences(longFord);
+          //  return res.json(getClient);
+
+            const createdJob = await createHCPJobs(workOrder, longFord);
+
             await sendMail(
               process.env.INVOICE_MAIL,
               `Invoice ${createdJob.invoice_number}`,
@@ -90,9 +104,7 @@ export const getWorkOrderAppfolio = async (req, res) => {
   }
 };
 
-
-
-export const getHCPClients = async (req, res) => {
+export const getHCPClients = async () => {
   const options = {
     method: "GET",
     url: "https://api.housecallpro.com/customers",
@@ -104,7 +116,7 @@ export const getHCPClients = async (req, res) => {
 
   try {
     const { data } = await axios.request(options);
-    console.log(data);
+    return data;
   } catch (error) {
     console.error(error);
     logger.error(error);
@@ -130,15 +142,14 @@ export const getHCPJobs = async (req, res) => {
 };
 
 export const createHCPJobs = async (workOrder, client) => {
-
-  // console.log('client', client)
+  console.log('client', client)
   // console.log('work order', workOrder)
   try {
     const { data } = await axios.post(
       "https://api.housecallpro.com/jobs",
       {
-        customer_id: client.clients.id,
-        address_id: client.clients.addresses[0].id ,
+        customer_id: client.id,
+        address_id: client.addresses[0].id,
         // schedule: {
         //   scheduled_start: workOrder.orders.ScheduledStart ?? '2023-03-23',
         //   scheduled_end: workOrder.orders.ScheduledEnd ?? '2023-03-23',
@@ -147,10 +158,7 @@ export const createHCPJobs = async (workOrder, client) => {
         // assigned_employee_ids: ["string"],
         line_items: [
           {
-            name:
-              workOrder.WorkOrderNumber +
-              " - " +
-              workOrder.JobDescription,
+            name: workOrder.WorkOrderNumber + " - " + workOrder.JobDescription,
             description: workOrder.JobDescription,
             unit_price: workOrder.Amount * 100,
             quantity: 1,
@@ -205,23 +213,21 @@ const createCustomer = async (workOrder) => {
 
     // If client does not exist, create one
     if (!existingClient) {
-
-      console.log(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`)
-      console.log(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`)
-      console.log(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`)
-      logger.info(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`)
+      console.log(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`);
+      console.log(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`);
+      console.log(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`);
+      logger.info(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`);
 
       const createCustomerResponse = await axios.post(
         "https://api.housecallpro.com/customers",
         {
           first_name: tenantFirstName,
           last_name: tenantLastName,
-          email:
-            workOrder.PrimaryTenantEmail,
+          email: workOrder.PrimaryTenantEmail,
           company: workOrder.Vendor,
           notifications_enabled: true,
-          mobile_number:
-            workOrder.PrimaryTenantPhoneNumber = workOrder.PrimaryTenantPhoneNumber.replace('Phone: ', ''),
+          mobile_number: (workOrder.PrimaryTenantPhoneNumber =
+            workOrder.PrimaryTenantPhoneNumber.replace("Phone: ", "")),
           lead_source: "Appfolio",
           addresses: [
             {
@@ -242,15 +248,13 @@ const createCustomer = async (workOrder) => {
         }
       );
 
-      console.log('created customer', createCustomerResponse.data);
-      logger.info('created customer');
-
-      
+      console.log("created customer", createCustomerResponse.data);
+      logger.info("created customer");
 
       // Save customer data to your MongoDB collection
-      await Clients.create({clients:createCustomerResponse.data});
+      await Clients.create({ clients: createCustomerResponse.data });
 
-      return {clients: createCustomerResponse.data};
+      return { clients: createCustomerResponse.data };
     } else {
       // If client already exists, return existing client data
       return existingClient;
