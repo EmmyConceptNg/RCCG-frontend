@@ -68,7 +68,11 @@ export function Invoice(user) {
   <tr>
     <td colspan="2">
       <h2>Longford</h2>
-      <p>${user.customer.first_name} ${user.customer.last_name}<br> ${user.customer.company} <br>${user.address.street}<br>${user.address.city}, ${user.address.state} ${user.address.zip}</p>
+      <p>${user.customer.first_name} ${user.customer.last_name}<br> ${
+    user.customer.company
+  } <br>${user.address.street}<br>${user.address.city}, ${user.address.state} ${
+    user.address.zip
+  }</p>
       <p>${user.customer.mobile_number} | ${user.customer.email}</p>
     </td>
     <td colspan="2" class="invoice-details">
@@ -79,7 +83,7 @@ export function Invoice(user) {
         </tr>
         <tr>
           <td>DUE: Upon receipt</td>
-          <td>Amount Due: $${user.total_amount}</td>
+          <td>Amount Due: $${Number(user.total_amount / 100).toFixed(2)}</td>
         </tr>
       </table>
     </td>
@@ -99,8 +103,8 @@ export function Invoice(user) {
     <tr>
       <td>${user.description}</td>
       <td>1.0</td>
-      <td>$${user.total_amount}</td>
-      <td>$${user.total_amount}</td>
+      <td>$${Number(user.total_amount / 100).toFixed(2)}</td>
+      <td>$${Number(user.total_amount / 100).toFixed(2)}</td>
     </tr>
     <!-- Add more rows as needed -->
   </tbody>
@@ -108,7 +112,7 @@ export function Invoice(user) {
 
 <table class="invoice-total" cellpadding="0" cellspacing="0">
   <tr>
-    <td>Total: $${user.total_amount}</td>
+    <td>Total: $${Number(user.total_amount / 100).toFixed(2)}</td>
   </tr>
 </table>
 

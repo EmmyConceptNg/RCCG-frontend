@@ -248,3 +248,47 @@
 {"level":"error","message":{"error":"An error occurred while processing your request."}}
 {"level":"info","message":">>>>>>> Skipping >>>>>>> Work order 25450 already exists in the database."}
 {"level":"info","message":">>>>>>> Skipping >>>>>>> Work order 25450 already exists in the database."}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}
+{"code":"ERR_BAD_RESPONSE","config":{"adapter":["xhr","http"],"data":"{\"customer_id\":\"cus_cb7c719c44e34a05a8b38776f6151f20\",\"address_id\":\"adr_77d445de27da489aa2e04a841d02a56d\",\"line_items\":[{\"name\":\"22638-1 - test - Bles Software (Emmanuel)\",\"description\":\"test - Bles Software (Emmanuel)\",\"unit_price\":\"10.00\",\"quantity\":1,\"unit_cost\":\"10.00\"}],\"lead_source\":\"Appfolio\",\"notes\":\"test - Bles Software (Emmanuel)\"}","env":{},"headers":{"Accept":"application/json","Accept-Encoding":"gzip, compress, deflate, br","Authorization":"Token 4051cf1a40e94ed0858387b0f41818a1","Content-Length":"343","Content-Type":"application/json","User-Agent":"axios/1.6.8"},"maxBodyLength":-1,"maxContentLength":-1,"method":"post","timeout":0,"transformRequest":[null],"transformResponse":[null],"transitional":{"clarifyTimeoutError":false,"forcedJSONParsing":true,"silentJSONParsing":true},"url":"https://api.housecallpro.com/jobs","xsrfCookieName":"XSRF-TOKEN","xsrfHeaderName":"X-XSRF-TOKEN"},"message":"Request failed with status code 500","name":"AxiosError","stack":"AxiosError: Request failed with status code 500\n    at settle (file:///Users/emmy/projects/bles/RockCreek/server/node_modules/axios/lib/core/settle.js:19:12)\n    at IncomingMessage.handleStreamEnd (file:///Users/emmy/projects/bles/RockCreek/server/node_modules/axios/lib/adapters/http.js:589:11)\n    at IncomingMessage.emit (node:events:526:35)\n    at endReadableNT (node:internal/streams/readable:1589:12)\n    at process.processTicksAndRejections (node:internal/process/task_queues:82:21)\n    at Axios.request (file:///Users/emmy/projects/bles/RockCreek/server/node_modules/axios/lib/core/Axios.js:45:41)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async createHCPJobs (file:///Users/emmy/projects/bles/RockCreek/server/controllers/WorkOrderController.js:158:22)\n    at async file:///Users/emmy/projects/bles/RockCreek/server/controllers/WorkOrderController.js:63:32\n    at async Promise.all (index 0)\n    at async getWorkOrderAppfolio (file:///Users/emmy/projects/bles/RockCreek/server/controllers/WorkOrderController.js:34:29)","status":500}
+{"level":"error","message":"Failed to get or create work orders: Cannot read properties of undefined (reading 'customer')","stack":"TypeError: Cannot read properties of undefined (reading 'customer')\n    at Invoice (file:///Users/emmy/projects/bles/RockCreek/server/pages/Invoice.js:71:17)\n    at file:///Users/emmy/projects/bles/RockCreek/server/controllers/WorkOrderController.js:65:47\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async Promise.all (index 0)\n    at async getWorkOrderAppfolio (file:///Users/emmy/projects/bles/RockCreek/server/controllers/WorkOrderController.js:34:29)"}
+{"level":"error","message":{"error":"An error occurred while processing your request."}}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}
+{"level":"info","message":">>>>>>> Skipping >>>>>>> Work order 25450 already exists in the database."}
+{"code":"ERR_BAD_RESPONSE","config":{"adapter":["xhr","http"],"data":"{\"customer_id\":\"cus_cb7c719c44e34a05a8b38776f6151f20\",\"address_id\":\"adr_77d445de27da489aa2e04a841d02a56d\",\"line_items\":[{\"name\":\"22638-1 - test - Bles Software (Emmanuel)\",\"description\":\"test - Bles Software (Emmanuel)\",\"unit_price\":\"10.00\",\"quantity\":1,\"unit_cost\":\"10.00\"}],\"lead_source\":\"Appfolio\",\"notes\":\"test - Bles Software (Emmanuel)\"}","env":{},"headers":{"Accept":"application/json","Accept-Encoding":"gzip, compress, deflate, br","Authorization":"Token 4051cf1a40e94ed0858387b0f41818a1","Content-Length":"343","Content-Type":"application/json","User-Agent":"axios/1.6.8"},"maxBodyLength":-1,"maxContentLength":-1,"method":"post","timeout":0,"transformRequest":[null],"transformResponse":[null],"transitional":{"clarifyTimeoutError":false,"forcedJSONParsing":true,"silentJSONParsing":true},"url":"https://api.housecallpro.com/jobs","xsrfCookieName":"XSRF-TOKEN","xsrfHeaderName":"X-XSRF-TOKEN"},"message":"Request failed with status code 500","name":"AxiosError","stack":"AxiosError: Request failed with status code 500\n    at settle (file:///Users/emmy/projects/bles/RockCreek/server/node_modules/axios/lib/core/settle.js:19:12)\n    at IncomingMessage.handleStreamEnd (file:///Users/emmy/projects/bles/RockCreek/server/node_modules/axios/lib/adapters/http.js:589:11)\n    at IncomingMessage.emit (node:events:526:35)\n    at endReadableNT (node:internal/streams/readable:1589:12)\n    at process.processTicksAndRejections (node:internal/process/task_queues:82:21)\n    at Axios.request (file:///Users/emmy/projects/bles/RockCreek/server/node_modules/axios/lib/core/Axios.js:45:41)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async createHCPJobs (file:///Users/emmy/projects/bles/RockCreek/server/controllers/WorkOrderController.js:158:22)\n    at async file:///Users/emmy/projects/bles/RockCreek/server/controllers/WorkOrderController.js:63:32\n    at async Promise.all (index 0)\n    at async getWorkOrderAppfolio (file:///Users/emmy/projects/bles/RockCreek/server/controllers/WorkOrderController.js:34:29)","status":500}
+{"level":"error","message":"Failed to get or create work orders: Cannot read properties of undefined (reading 'customer')","stack":"TypeError: Cannot read properties of undefined (reading 'customer')\n    at Invoice (file:///Users/emmy/projects/bles/RockCreek/server/pages/Invoice.js:71:17)\n    at file:///Users/emmy/projects/bles/RockCreek/server/controllers/WorkOrderController.js:65:47\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async Promise.all (index 0)\n    at async getWorkOrderAppfolio (file:///Users/emmy/projects/bles/RockCreek/server/controllers/WorkOrderController.js:34:29)"}
+{"level":"error","message":{"error":"An error occurred while processing your request."}}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}
+{"level":"info","message":">>>>>>> Skipping >>>>>>> Work order 25450 already exists in the database."}
+{"level":"info","message":">>>>>>> Skipping >>>>>>> Work order 25450 already exists in the database."}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}
+{"level":"info","message":">>>>>>> Skipping >>>>>>> Work order 25450 already exists in the database."}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}

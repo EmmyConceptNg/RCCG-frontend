@@ -1,11 +1,12 @@
 import Clients from "../models/Clients.js";
 import WorkOrder from "../models/WorkOrder.js";
 import axios from "axios";
-import { sendMail } from "./SendMail.js";
+import { sendAttachedMail, sendMail } from "./SendMail.js";
 import { Invoice } from "../pages/Invoice.js";
 import dotenv from "dotenv";
 import { logger } from "../utils/logger.js";
 dotenv.config();
+import puppeteer from "puppeteer";
 
 // WorkOrder controller
 export const getWorkOrder = async (req, res) => {
@@ -35,8 +36,8 @@ export const getWorkOrderAppfolio = async (req, res) => {
         .filter(
           (workOrder) =>
             workOrder.Vendor === "Rock Creek Construction, LLC" &&
-            workOrder.Status === "Assigned" 
-            && workOrder.CreatedAt === "05/09/2024" 
+            workOrder.Status === "Assigned" &&
+            workOrder.CreatedAt === "05/09/2024"
         )
         .map(async (workOrder) => {
           const existingOrder = await WorkOrder.findOne({
@@ -46,26 +47,35 @@ export const getWorkOrderAppfolio = async (req, res) => {
           if (!existingOrder) {
             const getClient = await getHCPClients();
 
-            
+            const longFord = getClient.customers.find(
+              (client) =>
+                client.first_name === "Longford" &&
+                client.last_name === "Management"
+            );
 
-           const longFord = getClient.customers.find(
-             (client) =>
-               client.first_name === "Longford" &&
-               client.last_name === "Management"
-           );
+            //  return res.status(200).json(longFord);
 
-          //  return res.status(200).json(longFord);
-
-           const cleanedLongFord = removeCircularReferences(longFord);
-          //  return res.json(getClient);
+            const cleanedLongFord = removeCircularReferences(longFord);
+            //  return res.json(getClient);
 
             const createdJob = await createHCPJobs(workOrder, longFord);
 
-            await sendMail(
-              process.env.INVOICE_MAIL,
-              `Invoice ${createdJob.invoice_number}`,
-              Invoice(createdJob)
-            );
+            const pdfBuffer = await createPdf(Invoice(createdJob));
+
+            if (pdfBuffer) {
+              await sendAttachedMail(
+                process.env.INVOICE_MAIL,
+                `Invoice ${createdJob.invoice_number}`,
+                "Please find the attached invoice.",
+                pdfBuffer
+              );
+            }
+
+            // await sendMail(
+            //   process.env.INVOICE_MAIL,
+            //   `Invoice ${createdJob.invoice_number}`,
+            //   Invoice(createdJob)
+            // );
 
             const filter = { "orders.WorkOrderId": workOrder.WorkOrderId };
             const update = { orders: workOrder };
@@ -142,7 +152,7 @@ export const getHCPJobs = async (req, res) => {
 };
 
 export const createHCPJobs = async (workOrder, client) => {
-  console.log('client', client)
+  // console.log('client', client)
   // console.log('work order', workOrder)
   try {
     const { data } = await axios.post(
@@ -180,7 +190,7 @@ export const createHCPJobs = async (workOrder, client) => {
         },
       }
     );
-    console.log(data);
+    // console.log(data);
     return data;
   } catch (error) {
     console.error(error);
@@ -280,4 +290,23 @@ function removeCircularReferences(obj) {
   return JSON.parse(JSON.stringify(obj, replacer));
 }
 
-getWorkOrderAppfolio();
+async function createPdf(html) {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.setContent(html);
+  const pdfBuffer = await page.pdf({ format: "A4" });
+  await browser.close();
+  return pdfBuffer;
+}
+
+function formatAmountAsCents(amount) {
+  // Check if the amount is already formatted as a float with two decimal places
+  if (Number(amount) === amount && amount % 1 !== 0) {
+    return Math.round(amount * 100);
+  } else {
+    // If the amount is a whole number, assume it's already in cents
+    return amount;
+  }
+}
+
+// getWorkOrderAppfolio();
