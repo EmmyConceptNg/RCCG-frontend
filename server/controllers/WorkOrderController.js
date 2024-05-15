@@ -5,8 +5,8 @@ import { sendAttachedMail, sendMail } from "./SendMail.js";
 import { Invoice } from "../pages/Invoice.js";
 import dotenv from "dotenv";
 import { logger } from "../utils/logger.js";
-dotenv.config();
 import puppeteer from "puppeteer";
+dotenv.config();
 
 // WorkOrder controller
 export const getWorkOrder = async (req, res) => {
