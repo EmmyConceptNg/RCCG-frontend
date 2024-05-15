@@ -6,6 +6,7 @@ import { Invoice } from "../pages/Invoice.js";
 import dotenv from "dotenv";
 import { logger } from "../utils/logger.js";
 import puppeteer from "puppeteer";
+
 dotenv.config();
 
 // WorkOrder controller
@@ -291,7 +292,10 @@ function removeCircularReferences(obj) {
 }
 
 async function createPdf(html) {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
   const page = await browser.newPage();
   await page.setContent(html);
   const pdfBuffer = await page.pdf({ format: "A4" });
