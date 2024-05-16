@@ -37,7 +37,8 @@ export const getWorkOrderAppfolio = async (req, res) => {
         .filter(
           (workOrder) =>
             workOrder.Vendor === "Rock Creek Construction, LLC" &&
-            workOrder.Status === "Assigned"
+            workOrder.Status === "Assigned" &&
+            workOrder.CreatedAt === "03/13/2024"
         )
         .map(async (workOrder) => {
           const existingOrder = await WorkOrder.findOne({
@@ -47,18 +48,28 @@ export const getWorkOrderAppfolio = async (req, res) => {
           if (!existingOrder) {
             const getClient = await getHCPClients();
 
+            const newCustomerOnClient = await createCustomer(workOrder);
+
+            // const getNewClientAddress = await getNewClientAddress();
+
             const longFord = getClient.customers.find(
               (client) =>
                 client.first_name === "Longford" &&
                 client.last_name === "Management"
             );
 
+            const longfordCustomerId = longFord.id;
+
             //  return res.status(200).json(longFord);
 
             const cleanedLongFord = removeCircularReferences(longFord);
             //  return res.json(getClient);
 
-            const createdJob = await createHCPJobs(workOrder, longFord);
+            const createdJob = await createHCPJobs(
+              workOrder,
+              longfordCustomerId,
+              newCustomerOnClient
+            );
 
             const pdfBuffer = await createPdf(Invoice(createdJob));
 
@@ -70,12 +81,6 @@ export const getWorkOrderAppfolio = async (req, res) => {
                 pdfBuffer
               );
             }
-
-            // await sendMail(
-            //   process.env.INVOICE_MAIL,
-            //   `Invoice ${createdJob.invoice_number}`,
-            //   Invoice(createdJob)
-            // );
 
             const filter = { "orders.WorkOrderId": workOrder.WorkOrderId };
             const update = { orders: workOrder };
@@ -132,6 +137,24 @@ export const getHCPClients = async () => {
     logger.error(error);
   }
 };
+export const getNewClientAddress = async (customerId) => {
+  const options = {
+    method: "GET",
+    url: `https://api.housecallpro.com/customers/${customerId}/addresses/{address_id}`,
+    headers: {
+      Accept: "application/json",
+      Authorization: `Token ${process.env.HCPAPI}`,
+    },
+  };
+
+  try {
+    const { data } = await axios.request(options);
+    return data;
+  } catch (error) {
+    console.error(error);
+    logger.error(error);
+  }
+};
 export const getHCPJobs = async (req, res) => {
   const options = {
     method: "GET",
@@ -151,7 +174,7 @@ export const getHCPJobs = async (req, res) => {
   }
 };
 
-export const createHCPJobs = async (workOrder, client) => {
+export const createHCPJobs = async (workOrder, longFordCustomer, client) => {
   // console.log('client', client)
   // console.log('work order', workOrder)
   try {
@@ -177,7 +200,7 @@ export const createHCPJobs = async (workOrder, client) => {
         ],
         // tags: ["string"],
         lead_source: "Appfolio",
-        notes: workOrder.Instructions ?? "",
+        notes: workOrder.longFordCustomer,
         // job_fields: {
         //   job_type_id: "string",
         //   business_unit_id: "string",
@@ -237,7 +260,9 @@ const createCustomer = async (workOrder) => {
           company: workOrder.Vendor,
           notifications_enabled: true,
           mobile_number: (workOrder.PrimaryTenantPhoneNumber =
-            workOrder.PrimaryTenantPhoneNumber.replace("Phone: ", "")),
+            workOrder.PrimaryTenantPhoneNumber.includes("Phone: ")
+              ? workOrder.PrimaryTenantPhoneNumber.replace("Phone: ", "")
+              : workOrder.PrimaryTenantPhoneNumber),
           lead_source: "Appfolio",
           addresses: [
             {
@@ -264,10 +289,26 @@ const createCustomer = async (workOrder) => {
       // Save customer data to your MongoDB collection
       await Clients.create({ clients: createCustomerResponse.data });
 
-      return { clients: createCustomerResponse.data };
+      return createCustomerResponse.data ;
     } else {
       // If client already exists, return existing client data
-      return existingClient;
+     const getCustomerResponse = await axios.get(
+       `https://api.housecallpro.com/customers/${existingClient.clients.id}`,
+       {
+         headers: {
+           Accept: "application/json",
+           Authorization: `Token ${process.env.HCPAPI}`,
+         },
+       }
+     );
+
+     console.log("existing customer", getCustomerResponse.data);
+     logger.info("existing customer");
+
+     // Save customer data to your MongoDB collection
+     await Clients.findByIdAndUpdate({_id:existingClient._id},{ clients: getCustomerResponse.data }, {new:true});
+
+     return getCustomerResponse.data ;
     }
   } catch (error) {
     console.error(error);
