@@ -302,3 +302,5 @@
 {"level":"error","message":"Error message"}
 {"level":"info","message":"Info message"}
 {"level":"error","message":"Error message"}
+{"level":"info","message":"Info message"}
+{"level":"error","message":"Error message"}
