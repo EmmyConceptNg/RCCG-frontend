@@ -37,8 +37,7 @@ export const getWorkOrderAppfolio = async (req, res) => {
         .filter(
           (workOrder) =>
             workOrder.Vendor === "Rock Creek Construction, LLC" &&
-            workOrder.Status === "Assigned" &&
-            workOrder.CreatedAt === "03/13/2024"
+            workOrder.Status === "Assigned"
         )
         .map(async (workOrder) => {
           const existingOrder = await WorkOrder.findOne({
