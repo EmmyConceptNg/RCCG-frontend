@@ -59,10 +59,7 @@ export const getWorkOrderAppfolio = async (req, res) => {
 
             const longfordCustomerId = longFord.id;
 
-            //  return res.status(200).json(longFord);
-
-            const cleanedLongFord = removeCircularReferences(longFord);
-            //  return res.json(getClient);
+        
 
             const createdJob = await createHCPJobs(
               workOrder,
@@ -199,7 +196,7 @@ export const createHCPJobs = async (workOrder, longFordCustomer, client) => {
         ],
         // tags: ["string"],
         lead_source: "Appfolio",
-        notes: workOrder.longFordCustomer,
+        notes: workOrder.Instructions,
         // job_fields: {
         //   job_type_id: "string",
         //   business_unit_id: "string",
