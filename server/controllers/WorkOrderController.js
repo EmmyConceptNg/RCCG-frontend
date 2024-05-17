@@ -232,84 +232,96 @@ const createCustomer = async (workOrder) => {
     tenantLastName = lastName;
   }
 
-  // console.log('first_name', tenantFirstName);
-
-  try {
-    const existingClient = await Clients.findOne({
-      "clients.first_name": tenantFirstName,
-      "clients.last_name": tenantLastName,
-    });
-
-    // If client does not exist, create one
-    if (!existingClient) {
-      console.log(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`);
-      console.log(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`);
-      console.log(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`);
-      logger.info(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`);
-
-      const createCustomerResponse = await axios.post(
-        "https://api.housecallpro.com/customers",
-        {
-          first_name: tenantFirstName,
-          last_name: tenantLastName,
-          email: workOrder.PrimaryTenantEmail,
-          company: workOrder.Vendor,
-          notifications_enabled: true,
-          mobile_number: (workOrder.PrimaryTenantPhoneNumber =
-            workOrder.PrimaryTenantPhoneNumber?.includes("Phone: ")
-              ? workOrder.PrimaryTenantPhoneNumber?.replace("Phone: ", "")
-              : workOrder.PrimaryTenantPhoneNumber),
-          lead_source: "Appfolio",
-          addresses: [
-            {
-              street: workOrder.PropertyStreet1,
-              street_line_2: workOrder.PropertyStreet2,
-              city: workOrder.PropertyCity,
-              state: workOrder.PropertyState,
-              zip: workOrder.PropertyZip,
-              // country: "USA",
-            },
-          ],
-        },
-        {
-          headers: {
-            Accept: "application/json",
-            Authorization: `Token ${process.env.HCPAPI}`,
-          },
-        }
-      );
-
-      console.log("created customer", createCustomerResponse.data);
-      logger.info("created customer");
-
-      // Save customer data to your MongoDB collection
-      await Clients.create({ clients: createCustomerResponse.data });
-
-      return createCustomerResponse.data ;
-    } else {
-      // If client already exists, return existing client data
-     const getCustomerResponse = await axios.get(
-       `https://api.housecallpro.com/customers/${existingClient.clients.id}`,
-       {
-         headers: {
-           Accept: "application/json",
-           Authorization: `Token ${process.env.HCPAPI}`,
-         },
-       }
-     );
-
-     console.log("existing customer", getCustomerResponse.data);
-     logger.info("existing customer");
-
-     // Save customer data to your MongoDB collection
-     await Clients.findByIdAndUpdate({_id:existingClient._id},{ clients: getCustomerResponse.data }, {new:true});
-
-     return getCustomerResponse.data ;
-    }
-  } catch (error) {
-    console.error(error);
-    logger.error(error);
+  if (
+    tenantFirstName === "" &&
+    tenantLastName === "" &&
+    workOrder.PrimaryTenantEmail === null &&
+    mobile_number === null
+  ) {
+    tenantFirstName = "no name";
   }
+    // console.log('first_name', tenantFirstName);
+
+    try {
+      const existingClient = await Clients.findOne({
+        "clients.first_name": tenantFirstName,
+        "clients.last_name": tenantLastName,
+      });
+
+      // If client does not exist, create one
+      if (!existingClient) {
+        console.log(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`);
+        console.log(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`);
+        console.log(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`);
+        logger.info(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`);
+
+        const createCustomerResponse = await axios.post(
+          "https://api.housecallpro.com/customers",
+          {
+            first_name: tenantFirstName,
+            last_name: tenantLastName,
+            email: workOrder.PrimaryTenantEmail,
+            company: workOrder.Vendor,
+            notifications_enabled: true,
+            mobile_number: (workOrder.PrimaryTenantPhoneNumber =
+              workOrder.PrimaryTenantPhoneNumber?.includes("Phone: ")
+                ? workOrder.PrimaryTenantPhoneNumber?.replace("Phone: ", "")
+                : workOrder.PrimaryTenantPhoneNumber),
+            lead_source: "Appfolio",
+            addresses: [
+              {
+                street: workOrder.PropertyStreet1,
+                street_line_2: workOrder.PropertyStreet2,
+                city: workOrder.PropertyCity,
+                state: workOrder.PropertyState,
+                zip: workOrder.PropertyZip,
+                // country: "USA",
+              },
+            ],
+          },
+          {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Token ${process.env.HCPAPI}`,
+            },
+          }
+        );
+
+        console.log("created customer", createCustomerResponse.data);
+        logger.info("created customer");
+
+        // Save customer data to your MongoDB collection
+        await Clients.create({ clients: createCustomerResponse.data });
+
+        return createCustomerResponse.data;
+      } else {
+        // If client already exists, return existing client data
+        const getCustomerResponse = await axios.get(
+          `https://api.housecallpro.com/customers/${existingClient.clients.id}`,
+          {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Token ${process.env.HCPAPI}`,
+            },
+          }
+        );
+
+        console.log("existing customer", getCustomerResponse.data);
+        logger.info("existing customer");
+
+        // Save customer data to your MongoDB collection
+        await Clients.findByIdAndUpdate(
+          { _id: existingClient._id },
+          { clients: getCustomerResponse.data },
+          { new: true }
+        );
+
+        return getCustomerResponse.data;
+      }
+    } catch (error) {
+      console.error(error);
+      logger.error(error);
+    }
 };
 
 // Function to remove circular references from an object
