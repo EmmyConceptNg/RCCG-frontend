@@ -236,7 +236,7 @@ const createCustomer = async (workOrder) => {
     tenantFirstName === "" &&
     tenantLastName === "" &&
     workOrder.PrimaryTenantEmail === null &&
-    mobile_number === null
+    workOrder.PrimaryTenantPhoneNumber === null
   ) {
     tenantFirstName = "no name";
   }
