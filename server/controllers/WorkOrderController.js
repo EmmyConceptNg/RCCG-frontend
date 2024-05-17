@@ -259,8 +259,8 @@ const createCustomer = async (workOrder) => {
           company: workOrder.Vendor,
           notifications_enabled: true,
           mobile_number: (workOrder.PrimaryTenantPhoneNumber =
-            workOrder.PrimaryTenantPhoneNumber.includes("Phone: ")
-              ? workOrder.PrimaryTenantPhoneNumber.replace("Phone: ", "")
+            workOrder.PrimaryTenantPhoneNumber?.includes("Phone: ")
+              ? workOrder.PrimaryTenantPhoneNumber?.replace("Phone: ", "")
               : workOrder.PrimaryTenantPhoneNumber),
           lead_source: "Appfolio",
           addresses: [
