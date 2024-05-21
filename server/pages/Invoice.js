@@ -1,4 +1,4 @@
-export function Invoice(user) {
+export function Invoice(user, workorder) {
   return `
         <!DOCTYPE html>
 <html lang="en">
@@ -68,12 +68,14 @@ export function Invoice(user) {
   <tr>
     <td colspan="2">
       <h2>Longford</h2>
-      <p>${user.customer.first_name} ${user.customer.last_name}<br> ${
-    user.customer.company
-  } <br>${user.address.street}<br>${user.address.city}, ${user.address.state} ${
-    user.address.zip
+      <p>${workorder.PrimaryTenant}<br> ${user.customer.company} <br>${
+    workorder.PropertyAddress
+  }<br>${workorder.PropertyCity}, ${workorder.PropertyState} ${
+    workorder.PropertyZip
   }</p>
-      <p>${user.customer.mobile_number} | ${user.customer.email}</p>
+      <p>${workorder.PrimaryTenantPhoneNumber} | ${
+    workorder.PrimaryTenantEmail
+  }</p>
     </td>
     <td colspan="2" class="invoice-details">
       <table>

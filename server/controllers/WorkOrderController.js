@@ -47,9 +47,7 @@ export const getWorkOrderAppfolio = async (req, res) => {
           if (!existingOrder) {
             const getClient = await getHCPClients();
 
-            const newCustomerOnClient = await createCustomer(workOrder);
-
-            // const getNewClientAddress = await getNewClientAddress();
+            
 
             const longFord = getClient.customers.find(
               (client) =>
@@ -59,15 +57,24 @@ export const getWorkOrderAppfolio = async (req, res) => {
 
             const longfordCustomerId = longFord.id;
 
-        
+            const newAddressOnClient = await createAddress(
+              workOrder,
+              longfordCustomerId
+            );
+
+            console.log(`>>>>>>>>>>>>>>>>>>>>>>>>>>>${newAddressOnClient}>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`);
 
             const createdJob = await createHCPJobs(
               workOrder,
               longfordCustomerId,
-              newCustomerOnClient
+              newAddressOnClient
             );
 
-            const pdfBuffer = await createPdf(Invoice(createdJob));
+
+            console.log(`>>>>>>>>>>>>>>>>>>> Created Job >>>>>>>>>>>>>>`);
+            console.log(createdJob);
+
+            const pdfBuffer = await createPdf(Invoice(createdJob, workOrder));
 
             if (pdfBuffer) {
               await sendAttachedMail(
@@ -170,15 +177,15 @@ export const getHCPJobs = async (req, res) => {
   }
 };
 
-export const createHCPJobs = async (workOrder, longFordCustomer, client) => {
-  // console.log('client', client)
-  // console.log('work order', workOrder)
+export const createHCPJobs = async (workOrder, longFordCustomer, clientAddress) => {
+  console.log('client', clientAddress)
+  console.log('work order', workOrder)
   try {
     const { data } = await axios.post(
       "https://api.housecallpro.com/jobs",
       {
-        customer_id: client.id,
-        address_id: client.addresses[0].id,
+        customer_id: longFordCustomer,
+        address_id: clientAddress,
         // schedule: {
         //   scheduled_start: workOrder.orders.ScheduledStart ?? '2023-03-23',
         //   scheduled_end: workOrder.orders.ScheduledEnd ?? '2023-03-23',
@@ -209,7 +216,8 @@ export const createHCPJobs = async (workOrder, longFordCustomer, client) => {
         },
       }
     );
-    // console.log(data);
+    console.log(`>>>>>>>>>>>>>>> Work Order Created :  ${data} >>>>>>>>>>>>>>>>>>>>>>>>`);
+    logger.info(`>>>>>>>>>>>>>>> Work Order Created :  ${data} >>>>>>>>>>>>>>>>>>>>>>>>`);
     return data;
   } catch (error) {
     console.error(error);
@@ -217,111 +225,71 @@ export const createHCPJobs = async (workOrder, longFordCustomer, client) => {
   }
 };
 
-const createCustomer = async (workOrder) => {
-  let tenantFirstName = "";
-  let tenantLastName = "";
-
-  // console.log(workOrder)
-
-  if (workOrder.PrimaryTenant) {
-    const [firstName, lastName] = workOrder.PrimaryTenant.split(" ").map(
-      (part) => part.trim()
+const createAddress = async (workOrder, customer_id) => {
+  try {
+    const getAllCustomerAddress = await axios.get(
+      `https://api.housecallpro.com/customers/${customer_id}/addresses`,
+      {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Token ${process.env.HCPAPI}`,
+        },
+      }
     );
 
-    tenantFirstName = firstName;
-    tenantLastName = lastName;
-  }
+    console.log(
+      "Checking Customer Addresses >>>>>>>>>>>",
+      getAllCustomerAddress.data.addresses
+    );
+    logger.info("Checking Customer Addresses >>>>>>>>>>>");
 
-  if (
-    tenantFirstName === "" &&
-    tenantLastName === "" &&
-    workOrder.PrimaryTenantEmail === null &&
-    workOrder.PrimaryTenantPhoneNumber === null
-  ) {
-    tenantFirstName = "no name";
-  }
-    // console.log('first_name', tenantFirstName);
+    // check if customer already have an address
 
-    try {
-      const existingClient = await Clients.findOne({
-        "clients.first_name": tenantFirstName,
-        "clients.last_name": tenantLastName,
-      });
+    const addressExists = getAllCustomerAddress.data.addresses.find(
+      (client) =>
+        client.street === workOrder.PropertyStreet1 &&
+        client.street_line_2 === workOrder.PropertyStreet2 &&
+        client.city === workOrder.PropertyCity
+    );
 
-      // If client does not exist, create one
-      if (!existingClient) {
-        console.log(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`);
-        console.log(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`);
-        console.log(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`);
-        logger.info(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`);
+    if (addressExists) {
+      console.log(">>>>>>>>>>>>>>>>>> Found Customer Addresses >>>>>>>>>>>");
+      logger.info(">>>>>>>>>>>>>>>>>> Found Customer Addresses >>>>>>>>>>>");
+      return addressExists.id;
+    } else {
+      console.log(
+        `>>>>>>>>>>>>>>>>>>>>>>Creating Address on Longford Customer >>>>>>>>>>>>>>>>`
+      );
+      logger.info(
+        `>>>>>>>>>>>>>>>>>>>>>>Creating Address on Longford Customer >>>>>>>>>>>>>>>>`
+      );
 
-        const createCustomerResponse = await axios.post(
-          "https://api.housecallpro.com/customers",
-          {
-            first_name: tenantFirstName,
-            last_name: tenantLastName,
-            email: workOrder.PrimaryTenantEmail,
-            company: workOrder.Vendor,
-            notifications_enabled: true,
-            mobile_number: (workOrder.PrimaryTenantPhoneNumber =
-              workOrder.PrimaryTenantPhoneNumber?.includes("Phone: ")
-                ? workOrder.PrimaryTenantPhoneNumber?.replace("Phone: ", "")
-                : workOrder.PrimaryTenantPhoneNumber),
-            lead_source: "Appfolio",
-            addresses: [
-              {
-                street: workOrder.PropertyStreet1,
-                street_line_2: workOrder.PropertyStreet2,
-                city: workOrder.PropertyCity,
-                state: workOrder.PropertyState,
-                zip: workOrder.PropertyZip,
-                // country: "USA",
-              },
-            ],
+      const createAddressOnLongford = await axios.post(
+        `https://api.housecallpro.com/customers/${customer_id}/addresses`,
+        {
+          street: workOrder.PropertyStreet1,
+          street_line_2: workOrder.PropertyStreet2,
+          city: workOrder.PropertyCity,
+          state: workOrder.PropertyState,
+          zip: workOrder.PropertyZip,
+          country: "USA",
+        },
+        {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Token ${process.env.HCPAPI}`,
           },
-          {
-            headers: {
-              Accept: "application/json",
-              Authorization: `Token ${process.env.HCPAPI}`,
-            },
-          }
-        );
+        }
+      );
 
-        console.log("created customer", createCustomerResponse.data);
-        logger.info("created customer");
-
-        // Save customer data to your MongoDB collection
-        await Clients.create({ clients: createCustomerResponse.data });
-
-        return createCustomerResponse.data;
-      } else {
-        // If client already exists, return existing client data
-        const getCustomerResponse = await axios.get(
-          `https://api.housecallpro.com/customers/${existingClient.clients.id}`,
-          {
-            headers: {
-              Accept: "application/json",
-              Authorization: `Token ${process.env.HCPAPI}`,
-            },
-          }
-        );
-
-        console.log("existing customer", getCustomerResponse.data);
-        logger.info("existing customer");
-
-        // Save customer data to your MongoDB collection
-        await Clients.findByIdAndUpdate(
-          { _id: existingClient._id },
-          { clients: getCustomerResponse.data },
-          { new: true }
-        );
-
-        return getCustomerResponse.data;
-      }
-    } catch (error) {
-      console.error(error);
-      logger.error(error);
+      console.log("created customer", createAddressOnLongford.data);
+      logger.info("created customer");
+      return createAddressOnLongford.data.id;
     }
+  } catch (error) {
+    console.error(error);
+    logger.error(error);
+  }
 };
 
 // Function to remove circular references from an object
