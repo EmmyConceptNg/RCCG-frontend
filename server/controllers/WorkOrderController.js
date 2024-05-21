@@ -256,7 +256,7 @@ const createCustomer = async (workOrder) => {
         logger.info(`>>>>>>>>>>>>>>>>>>>>>>Creating Customer >>>>>>>>>>>>>>>>`);
 
         const createCustomerResponse = await axios.post(
-          "https://api.housecallpro.com/customers",
+          "https://api.housecallpro.com/customers/{customer_id}/addresses",
           {
             first_name: tenantFirstName,
             last_name: tenantLastName,
