@@ -73,6 +73,16 @@ export const getWorkOrderAppfolio = async (req, res) => {
             console.log(`>>>>>>>>>>>>>>>>>>> Created Job >>>>>>>>>>>>>>`);
             console.log(createdJob);
 
+            const filter = { "orders.WorkOrderId": workOrder.WorkOrderId };
+            const update = { orders: workOrder };
+            const options = { new: true, upsert: true };
+
+            const updatedOrder = await WorkOrder.findOneAndReplace(
+              filter,
+              update,
+              options
+            );
+
             const pdfBuffer = await createPdf(Invoice(createdJob, workOrder));
 
             if (pdfBuffer) {
@@ -83,16 +93,6 @@ export const getWorkOrderAppfolio = async (req, res) => {
                 pdfBuffer
               );
             }
-
-            const filter = { "orders.WorkOrderId": workOrder.WorkOrderId };
-            const update = { orders: workOrder };
-            const options = { new: true, upsert: true };
-
-            const updatedOrder = await WorkOrder.findOneAndReplace(
-              filter,
-              update,
-              options
-            );
 
             return updatedOrder;
           } else {
